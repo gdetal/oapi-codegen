@@ -6,7 +6,8 @@ import (
 
 const (
 	// extPropGoType overrides the generated type definition.
-	extPropGoType = "x-go-type"
+	extPropGoType  = "x-go-type"
+	extPropGoAlias = "x-go-type-alias"
 	// extPropGoImport specifies the module to import which provides above type
 	extPropGoImport = "x-go-type-import"
 	// extGoName is used to override a field name
@@ -30,6 +31,14 @@ func extString(extPropValue interface{}) (string, error) {
 }
 func extTypeName(extPropValue interface{}) (string, error) {
 	return extString(extPropValue)
+}
+
+func extTypeAlias(extPropValue interface{}) (bool, error) {
+	alias, ok := extPropValue.(bool)
+	if !ok {
+		return false, fmt.Errorf("failed to convert type: %T", extPropValue)
+	}
+	return alias, nil
 }
 
 func extParseGoFieldName(extPropValue interface{}) (string, error) {

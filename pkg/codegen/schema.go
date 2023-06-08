@@ -269,7 +269,16 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 			return outSchema, fmt.Errorf("invalid value for %q: %w", extPropGoType, err)
 		}
 		outSchema.GoType = typeName
-		outSchema.DefineViaAlias = true
+
+		if extension, ok := schema.Extensions[extPropGoAlias]; ok {
+			typeAlias, err := extTypeAlias(extension)
+			if err != nil {
+				return outSchema, fmt.Errorf("invalid value for %q: %w", extPropGoAlias, err)
+			}
+			outSchema.DefineViaAlias = typeAlias
+		} else {
+			outSchema.DefineViaAlias = true
+		}
 		return outSchema, nil
 	}
 
@@ -292,7 +301,15 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 				outType = "interface{}"
 			}
 			outSchema.GoType = outType
-			outSchema.DefineViaAlias = true
+			if extension, ok := schema.Extensions[extPropGoAlias]; ok {
+				typeAlias, err := extTypeAlias(extension)
+				if err != nil {
+					return outSchema, fmt.Errorf("invalid value for %q: %w", extPropGoAlias, err)
+				}
+				outSchema.DefineViaAlias = typeAlias
+			} else {
+				outSchema.DefineViaAlias = true
+			}
 		} else {
 			// When we define an object, we want it to be a type definition,
 			// not a type alias, eg, "type Foo struct {...}"
@@ -475,7 +492,16 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 		if err != nil {
 			return Schema{}, fmt.Errorf("error resolving primitive type: %w", err)
 		}
+
+		if extension, ok := schema.Extensions[extPropGoAlias]; ok {
+			typeAlias, err := extTypeAlias(extension)
+			if err != nil {
+				return outSchema, fmt.Errorf("invalid value for %q: %w", extPropGoAlias, err)
+			}
+			outSchema.DefineViaAlias = typeAlias
+		}
 	}
+
 	return outSchema, nil
 }
 
